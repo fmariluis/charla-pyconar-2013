@@ -53,11 +53,11 @@ script o en un framework web como Django o Flask
 ---
 # DataFrame
 
-*Two-dimensional size-mutable, potentially heterogeneous tabular data
-structure with labeled axes (rows and columns). Arithmetic operations
-align on both row and column labels. Can be thought of as a dict-like
-container for Series objects. The primary pandas data
-structure.*
+>*Two-dimensional size-mutable, potentially heterogeneous tabular data
+>structure with labeled axes (rows and columns). Arithmetic operations
+>align on both row and column labels. Can be thought of as a dict-like
+>container for Series objects. The primary pandas data
+>structure.*
 
 ---
 
@@ -99,7 +99,7 @@ sección.
 ---
 # Instalación
 
-
+    pip install numpy
     pip install pandas
 
 ---
@@ -120,25 +120,148 @@ Vamos a usar un csv con resultados de la elección presidencial del 2007 tomado 
     ipython notebook --pylab inline
 
 ---
+# Interacción con Django: caso de estudio
+
+---
+# Una aplicación web para la liquidación de horas del personal de la construcción
+
+---
+# Las horas se importan y liquidan en Tango Gestión, se requería la exportación desde Django en un formato específico
+
+---
+# AKA: generar una pivot table
+
+---
+# Generación de una tabla dinámica usando Pandas
+
+---
+# Tabla "normal"
+
+![Tabla plana](images/tabla_plana.png)
+
+
+---
+# Tabla dinámica (pivot table)
+
+![Tabla plana](images/tabla_pivot.png)
+
+
+---
+# views.py
+    !python
+    @login_required
+    @never_cache
+    def reporte_quincena_liquidar(request, *args):
+        """
+        Reporte utilizado para la liquidación directa de la quincena
+        """
+        quincena = Hora.objects.select_related().filter(
+            fecha__year=args[0],
+            fecha__month=args[1], empleado__Grupo='UOCRA',
+            quincena=args[2]).order_by('empleado', '-fecha')
+
+        q = quincena.values(
+            'empleado__name', 'empleado__legajo',
+            'Categoria__codigo', 'fecha', 'tipo_de_hora__descripcion',
+            'tipo_de_hora__codigo_tango', 'horas_reloj', 'presentismo')
+
+        df_temp = pd.DataFrame.from_records(q, coerce_float=True)
+
+        dd = lambda x: datetime.date.strftime(x, "%d-%m")
+
+        df_temp.fecha = df_temp.fecha.map(dd)
+
+        df = df_temp.rename(columns={
+            'empleado__name': 'nombre', 'empleado__legajo': 'leg',
+            'Categoria__codigo': 'cat', 'tipo_de_hora__descripcion': 'tipo_h',
+            'tipo_de_hora__codigo_tango': 'codigo_tango', 'presentismo': 'p'})
+
+        pv = pd.pivot_table(df, values="horas_reloj", cols="fecha", rows=[
+            'nombre', 'leg', 'cat', 'codigo_tango', 'tipo_h',
+            'p'], margins=True, aggfunc=sum)
+
+        d_tag = '-' + args[0] + '-' + args[1] + '-' + args[2]
+
+        filename = str('quincena' + d_tag + '.xls')
+
+        pv.to_excel('/srv/www/hurondb.com.ar/public_html/static/reportes/' + filename,
+                    sheet_name="quincena")
+
+        return redirect('/static/reportes/' + filename)
+---
+# Vamos por partes
+
+![Vamos por partes](images/london-ripper.jpg)
+
+---
+Armamos el queryset
+
+    !python
+        quincena = Hora.objects.select_related().filter(
+            fecha__year=args[0],
+            fecha__month=args[1], empleado__Grupo='UOCRA',
+            quincena=args[2]).order_by('empleado', '-fecha')
+
+Traemos el resultado en forma de dict
+
+    !python
+        q = quincena.values(
+            'empleado__name', 'empleado__legajo',
+            'Categoria__codigo', 'fecha', 'tipo_de_hora__descripcion',
+            'tipo_de_hora__codigo_tango', 'horas_reloj', 'presentismo')
+
+Creamos el dataframe a partir de ese dict
+
+    !python
+        df_temp = pd.DataFrame.from_records(q, coerce_float=True)
+
+Creamos una función anónima para formatear la fecha
+
+    !python
+        dd = lambda x: datetime.date.strftime(x, "%d-%m")
+
+Aplicamos la función anónima a la columna fecha para formatearla 
+
+    !python
+        df_temp.fecha = df_temp.fecha.map(dd)
+---
+Renombramos las columnas del dataframe
+
+    !python
+        df = df_temp.rename(columns={
+            'empleado__name': 'nombre', 'empleado__legajo': 'leg',
+            'Categoria__codigo': 'cat', 'tipo_de_hora__descripcion': 'tipo_h',
+            'tipo_de_hora__codigo_tango': 'codigo_tango', 'presentismo': 'p'})
+
+Generamos la pivot table
+
+    !python
+        pv = pd.pivot_table(df, values="horas_reloj", cols="fecha", rows=[
+            'nombre', 'leg', 'cat', 'codigo_tango', 'tipo_h',
+            'p'], margins=True, aggfunc=sum)
+
+Creamos el xls
+
+    !python
+        pv.to_excel('/srv/www/hurondb.com.ar/public_html/static/reportes/' + filename,
+                    sheet_name="quincena")
+---
 # Más información
 
 ---
-
 ![Python for Data Analysis](images/pandas_cover.jpg)
 
 ---
-
 # http://pandas.pydata.org/
----
 
+---
 # BTW
----
 
+---
 # Estamos buscando gente
 
 ---
-
 # rrhh@msa.com.ar
----
 
+---
 # Gracias!
