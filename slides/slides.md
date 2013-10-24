@@ -15,7 +15,7 @@
 
 ---
 
-## Beto
+## Colaborador: Beto
 
 
 ![Beto](images/beto.jpg)
@@ -48,7 +48,16 @@ transformación de información obtenida de diversas fuentes.
   para su uso interactivo, pero también puede usarse fácilmente en un
 script o en un framework web como Django o Flask
 - Poderosas herramientas para aplicar estadística descriptiva o
-  cualquier función matemática sobre un set de datos
+  cualquier función matemática sobre un set de datos.
+
+---
+# DataFrame
+
+*Two-dimensional size-mutable, potentially heterogeneous tabular data
+structure with labeled axes (rows and columns). Arithmetic operations
+align on both row and column labels. Can be thought of as a dict-like
+container for Series objects. The primary pandas data
+structure.*
 
 ---
 
@@ -75,23 +84,42 @@ R (http://www.r-project.org/) es un entorno (y un lenguaje de programación) ori
 computación estadística y a los gráficos. Es un proyecto GNU y es
 ampliamente usado para el análisis de datos.
 
-Pandas utiliza 
+Uno de los tipos de datos implementados por Pandas está inspirado en el
+dataframe de R.
+
+---
+# Matplotlib
+
+La librería de Python más popular para producir gráficos y
+visualizaciones en 3D. Vamos a ver ejemplos de uso en la siguiente
+sección.
+
+![Barras](images/barchart_demo.png)
+
+---
+# Instalación
+
+
+    pip install pandas
 
 ---
 
-# Ejemplos
+![Carreta](images/carreta.jpg)
 
 
 ---
-
-# Uso interactivo
+# Ejemplo
 
 Vamos a usar un csv con resultados de la elección presidencial del 2007 tomado del Portal Nacional de Datos Públicos: (http://datospublicos.gob.ar)
 
 [Ver en un IPython Notebook](http://127.0.0.1:8888/ae8cd589-9ce2-4bf4-9b63-ea3ebef3678c)
 
 ---
+# Uso interactivo
 
+    ipython notebook --pylab inline
+
+---
 # Más información
 
 ---
@@ -101,3 +129,16 @@ Vamos a usar un csv con resultados de la elección presidencial del 2007 tomado 
 ---
 
 # http://pandas.pydata.org/
+---
+
+# BTW
+---
+
+# Estamos buscando gente
+
+---
+
+# rrhh@msa.com.ar
+---
+
+# Gracias!
